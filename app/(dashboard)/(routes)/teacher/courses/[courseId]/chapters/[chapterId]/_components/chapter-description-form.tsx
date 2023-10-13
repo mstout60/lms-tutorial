@@ -5,6 +5,7 @@ import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
+import { Chapter } from "@prisma/client";
 
 import {
     Form,
@@ -14,30 +15,29 @@ import {
     FormMessage,
 
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Editor } from "@/components/editor";
+import { Preview } from "@/components/preview";
 
-
-interface ChapteTitleFormProps {
-    initialData: {
-        title: string,
-    };
+interface ChapterDescriptionFormProps {
+    initialData: Chapter;
     courseId: string;
     chapterId: string;
 }
 
 const formSchema = z.object({
-    title: z.string().min(1),
+    description: z.string().min(1),
 });
 
-export const ChapterTitleForm = ({
+export const ChapterDescriptionForm = ({
     initialData,
     courseId,
-    chapterId,
-}: ChapteTitleFormProps) => {
+    chapterId
+}: ChapterDescriptionFormProps) => {
     const [isEditing, setIsEditing] = useState(false);
 
     const toggleEdit = () => setIsEditing((current) => !current);
@@ -46,7 +46,9 @@ export const ChapterTitleForm = ({
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-        defaultValues: initialData,
+        defaultValues: {
+            description: initialData?.description || ""
+        },
     });
 
     const { isSubmitting, isValid } = form.formState;
@@ -65,7 +67,7 @@ export const ChapterTitleForm = ({
     return (
         <div className="mt-6 border bg-slate-100 rounded-md p-4">
             <div className="font-medium flex items-center justify-between">
-                Chapter title
+                Chapter Description
                 <Button onClick={toggleEdit} variant="ghost">
                     {isEditing && (
                         <>Cancel</>
@@ -73,15 +75,23 @@ export const ChapterTitleForm = ({
                     {!isEditing && (
                         <>
                             <Pencil className="h-4 w-4 mr-2" />
-                            Edit title
+                            Edit description
                         </>
                     )}
                 </Button>
             </div>
             {!isEditing && (
-                <p className="text-sm mt-2">
-                    {initialData.title}
-                </p>
+                <div className={cn(
+                    "text-sm mt-2",
+                    !initialData.description && "text-slate-500 italic"
+                )}>
+                    {!initialData.description && "No description"}
+                    {initialData.description && (
+                        <Preview
+                            value={initialData.description}
+                        />
+                    )}
+                </div>
             )}
             {isEditing && (
                 <Form {...form}>
@@ -91,13 +101,11 @@ export const ChapterTitleForm = ({
                     >
                         <FormField
                             control={form.control}
-                            name="title"
+                            name="description"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <Input
-                                            disabled={isSubmitting}
-                                            placeholder="e.g. 'Introduction to the course'"
+                                        <Editor
                                             {...field}
                                         />
                                     </FormControl>
