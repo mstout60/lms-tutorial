@@ -6,12 +6,9 @@ import { db } from "@/lib/db";
 export async function PATCH(
     req: Request,
     { params }: { params: { courseId: string } }
-
 ) {
     try {
         const { userId } = auth();
-
-        console.log(userId)
 
         if (!userId) {
             return new NextResponse("Unauthorized", { status: 401 });
@@ -37,14 +34,14 @@ export async function PATCH(
 
         const hasPublishedChapter = course.chapters.some((chapter) => chapter.isPublished);
 
-        if (!course.title || !course.description || !course.imageUrl || !course.categoryId || hasPublishedChapter) {
+        if (!course.title || !course.description || !course.imageUrl || !course.categoryId || !hasPublishedChapter) {
             return new NextResponse("Missing required fields", { status: 401 });
         }
 
         const publishedCourse = await db.course.update({
             where: {
                 id: params.courseId,
-                userId
+                userId,
             },
             data: {
                 isPublished: true,
