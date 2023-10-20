@@ -4,6 +4,7 @@ import { BookOpen } from "lucide-react";
 
 import { IconBadge } from "@/components/icon-badge";
 import { formatPrice } from "@/lib/format";
+import { CourseProgress } from "@/components/course-progress";
 
 interface CourseCardProps {
     id: string;
@@ -15,8 +16,6 @@ interface CourseCardProps {
     category: string;
 };
 
-
-
 export const CourseCard = ({
     id,
     title,
@@ -26,6 +25,7 @@ export const CourseCard = ({
     progress,
     category
 }: CourseCardProps) => {
+
     return (
         <Link href={`/courses/${id}`}>
             <div className="group hover:shadow-sm transition overflow-hidden border rounded-lg p-3 h-full">
@@ -44,7 +44,7 @@ export const CourseCard = ({
                     <p className="text-xs text-muted-foreground">
                         {category}
                     </p>
-                    <div className="my-3 flex items-center gap-x-1">
+                    <div className="my-3 flex items-center gap-x-2 text-sm md:text-xs">
                         <div className="flex items-center gap-x-1 text-slate-500">
                             <IconBadge size="sm" icon={BookOpen} />
                             <span>
@@ -53,9 +53,11 @@ export const CourseCard = ({
                         </div>
                     </div>
                     {progress !== null ? (
-                        <div>
-                            TODO: Progress components
-                        </div>
+                        <CourseProgress
+                            variant={progress === 100 ? "success" : "default"}
+                            size="sm"
+                            value={progress}
+                        />
                     ) : (
                         <p className="text-md md:text-sm font-medium text-slate-700">
                             {formatPrice(price)}
